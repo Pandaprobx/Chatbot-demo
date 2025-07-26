@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>FAQ Chatbot – Online-Shop</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    #chatbot-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 320px;
+      max-height: 500px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    #chat {
+      background: #f9f9f9;
+      height: 400px;
+      overflow-y: auto;
+      padding: 10px;
+    }
+    .bot, .user {
+      margin: 5px 0;
+      padding: 8px 12px;
+      border-radius: 16px;
+      max-width: 80%;
+      display: inline-block;
+      clear: both;
+    }
+    .bot {
+      background-color: #eee;
+      float: left;
+    }
+    .user {
+      background-color: #d1eaff;
+      float: right;
+    }
+    #input-area {
+      display: flex;
+      border-top: 1px solid #ccc;
+      background: #fff;
+    }
+    #input {
+      flex: 1;
+      border: none;
+      padding: 10px;
+      font-size: 14px;
+    }
+    #send {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 0 15px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div id="chatbot-container">
+  <div id="chat"></div>
+  <div id="input-area">
+    <input type="text" id="input" placeholder="Frage hier eingeben...">
+    <button id="send">Senden</button>
+  </div>
+</div>
+
+<script>
+  const chat = document.getElementById('chat');
+  const input = document.getElementById('input');
+  const send = document.getElementById('send');
+
+  function appendMessage(text, sender) {
+    const msg = document.createElement('div');
+    msg.className = sender;
+    msg.textContent = text;
+    chat.appendChild(msg);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function botResponse(userInput) {
+    const input = userInput.toLowerCase();
+    if (input.includes("versand")) {
+      return "Der Versand dauert in der Regel 2–4 Werktage.";
+    } else if (input.includes("rückgabe") || input.includes("retoure")) {
+      return "Sie können Ihre Bestellung innerhalb von 14 Tagen kostenlos zurücksenden.";
+    } else if (input.includes("zahlung") || input.includes("bezahlen")) {
+      return "Wir akzeptieren PayPal, Kreditkarte, Klarna und Sofortüberweisung.";
+    } else if (input.includes("kontakt")) {
+      return "Sie erreichen uns per E-Mail unter support@deinshop.de.";
+    } else if (input.includes("rechnung")) {
+      return "Die Rechnung wird Ihnen automatisch per E-Mail zugesendet.";
+    } else {
+      return "Leider habe ich dazu keine Antwort. Bitte kontaktieren Sie unseren Kundenservice.";
+    }
+  }
+
+  send.addEventListener('click', () => {
+    const userText = input.value.trim();
+    if (!userText) return;
+    appendMessage(userText, 'user');
+    setTimeout(() => {
+      const response = botResponse(userText);
+      appendMessage(response, 'bot');
+    }, 500);
+    input.value = '';
+  });
+
+  input.addEventListener('keypress', e => {
+    if (e.key === 'Enter') send.click();
+  });
+
+  // Begrüßung
+  appendMessage("Hallo! Ich bin dein Shop-Assistent. Wie kann ich helfen?", 'bot');
+</script>
+
+</body>
+</html>

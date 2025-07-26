@@ -1,171 +1,72 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8" />
-<title>Shop-Chatbot Demo</title>
-<style>
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #4a90e2, #50e3c2);
-    height: 100vh;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  #chatbot-container {
-    width: 380px;
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  #header {
-    background: #4a90e2;
-    color: white;
-    padding: 18px;
-    font-size: 20px;
-    font-weight: 600;
-    text-align: center;
-    letter-spacing: 0.05em;
-  }
-  #chat {
-    flex-grow: 1;
-    padding: 15px;
-    overflow-y: auto;
-    background: #f9faff;
-  }
-  .bot, .user {
-    max-width: 75%;
-    margin: 10px 0;
-    padding: 12px 20px;
-    border-radius: 25px;
-    display: inline-block;
-    clear: both;
-    font-size: 15px;
-    line-height: 1.4;
-  }
-  .bot {
-    background-color: #e1f0ff;
-    color: #003366;
-    float: left;
-    border-bottom-left-radius: 0;
-  }
-  .user {
-    background-color: #4a90e2;
-    color: white;
-    float: right;
-    border-bottom-right-radius: 0;
-  }
-  #input-area {
-    display: flex;
-    border-top: 1px solid #ddd;
-  }
-  #input {
-    flex: 1;
-    border: none;
-    padding: 15px 20px;
-    font-size: 16px;
-    outline: none;
-    border-radius: 0 0 0 20px;
-  }
-  #send {
-    background: #50e3c2;
-    border: none;
-    color: white;
-    font-weight: bold;
-    padding: 0 25px;
-    cursor: pointer;
-    border-radius: 0 0 20px 0;
-    transition: background 0.3s ease;
-  }
-  #send:hover {
-    background: #3ac9ad;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <title>Shop-Chatbot GPT-4</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #chat { border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: auto; display: flex; flex-direction: column; }
+    .message { margin: 8px 0; padding: 8px 12px; border-radius: 10px; max-width: 70%; }
+    .user { background-color: #d1eaff; align-self: flex-end; }
+    .bot { background-color: #eee; align-self: flex-start; }
+    #input-area { margin-top: 10px; display: flex; }
+    #input { flex-grow: 1; padding: 10px; font-size: 16px; }
+    #send { padding: 10px 20px; font-size: 16px; }
+  </style>
 </head>
 <body>
 
-<div id="chatbot-container">
-  <div id="header">ShopAssist – Dein Shop-Chatbot</div>
+  <h1>Shop-Chatbot</h1>
   <div id="chat"></div>
   <div id="input-area">
-    <input id="input" placeholder="Schreibe deine Frage hier..." autocomplete="off" />
+    <input type="text" id="input" placeholder="Frage hier eingeben..." />
     <button id="send">Senden</button>
   </div>
-</div>
 
-<script>
-const chat = document.getElementById('chat');
-const input = document.getElementById('input');
-const send = document.getElementById('send');
+  <script>
+    const chat = document.getElementById('chat');
+    const input = document.getElementById('input');
+    const send = document.getElementById('send');
 
-const shopName = "ShopAssist";
+    function addMessage(text, sender) {
+      const msg = document.createElement('div');
+      msg.textContent = text;
+      msg.className = 'message ' + sender;
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
+    }
 
-function appendMessage(text, sender) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  div.className = sender;
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-}
+    async function sendMessage() {
+      const userText = input.value.trim();
+      if (!userText) return;
 
-function botResponse(text) {
-  const input = text.toLowerCase();
+      addMessage(userText, 'user');
+      input.value = '';
+      addMessage("Bitte warte...", 'bot');
 
-  if (/^(hi|hallo|hey|guten (morgen|tag|abend))/.test(input)) {
-    return `Hallo! Willkommen bei ${shopName}. Wie kann ich dir heute helfen?`;
-  }
+      try {
+        const response = await fetch('http://localhost:3000/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: userText })
+        });
+        const data = await response.json();
+        chat.lastChild.remove();
+        addMessage(data.reply, 'bot');
+      } catch (err) {
+        chat.lastChild.remove();
+        addMessage("Fehler beim Laden der Antwort.", 'bot');
+      }
+    }
 
-  if (/wie (geht('|’)?s|geht es) dir/.test(input)) {
-    return `Danke der Nachfrage! Ich bin hier, um dir bei allen Fragen zu ${shopName} zu helfen. Was möchtest du wissen?`;
-  }
+    send.addEventListener('click', sendMessage);
+    input.addEventListener('keypress', e => {
+      if (e.key === 'Enter') sendMessage();
+    });
 
-  if (input.includes("versand") || input.includes("lieferzeit") || input.includes("wann kommt")) {
-    return `Unsere Lieferungen dauern in der Regel 2-4 Werktage. Wir bei ${shopName} geben unser Bestes, damit deine Bestellung schnell ankommt!`;
-  }
-
-  if (input.includes("rückgabe") || input.includes("retoure") || input.includes("zurückgeben")) {
-    return `Du kannst Artikel innerhalb von 14 Tagen kostenlos an ${shopName} zurückgeben. Wenn du Hilfe bei der Retoure brauchst, melde dich gern bei uns!`;
-  }
-
-  if (input.includes("zahlung") || input.includes("bezahlen") || input.includes("zahlungsmethoden")) {
-    return `${shopName} akzeptiert PayPal, Kreditkarte, Klarna und Sofortüberweisung.`;
-  }
-
-  if (input.includes("rechnung") || input.includes("quittung")) {
-    return `Die Rechnung wird dir automatisch per E-Mail zugesendet. Falls du sie nicht findest, hilft dir ${shopName} gern weiter.`;
-  }
-
-  if (input.includes("kontakt") || input.includes("hilfe") || input.includes("support")) {
-    return `Du kannst unser Support-Team von ${shopName} jederzeit per E-Mail unter support@shopassist.de erreichen.`;
-  }
-
-  if (/danke|vielen dank/.test(input)) {
-    return `Gern geschehen! ${shopName} freut sich, dir helfen zu können.`;
-  }
-
-  return `Entschuldige, ich habe deine Frage nicht ganz verstanden. Bitte formuliere sie anders oder kontaktiere unser Team bei ${shopName}.`;
-}
-
-send.addEventListener('click', () => {
-  const userText = input.value.trim();
-  if (!userText) return;
-  appendMessage(userText, 'user');
-  setTimeout(() => {
-    appendMessage(botResponse(userText), 'bot');
-  }, 600);
-  input.value = '';
-});
-
-input.addEventListener('keypress', e => {
-  if (e.key === 'Enter') send.click();
-});
-
-appendMessage(`Hallo! Ich bin dein ${shopName} Chatbot. Wie kann ich dir heute helfen?`, 'bot');
-</script>
+    addMessage("Hallo! Ich bin dein Shop-Assistent. Wie kann ich helfen?", 'bot');
+  </script>
 
 </body>
 </html>

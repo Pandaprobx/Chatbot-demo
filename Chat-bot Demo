@@ -2,23 +2,26 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>FAQ Chatbot – Online-Shop</title>
+  <title>Demo Chatbot – Intelligenter</title>
   <style>
-    body { font-family: Arial, sans-serif; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
     #chatbot-container {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      width: 320px;
-      max-height: 500px;
+      width: 340px;
+      max-height: 520px;
       border: 1px solid #ccc;
       border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      background: white;
+      display: flex;
+      flex-direction: column;
     }
     #chat {
       background: #f9f9f9;
-      height: 400px;
+      flex: 1;
       overflow-y: auto;
       padding: 10px;
     }
@@ -41,7 +44,6 @@
     #input-area {
       display: flex;
       border-top: 1px solid #ccc;
-      background: #fff;
     }
     #input {
       flex: 1;
@@ -55,6 +57,9 @@
       border: none;
       padding: 0 15px;
       cursor: pointer;
+    }
+    #send:hover {
+      background: #0056b3;
     }
   </style>
 </head>
@@ -83,19 +88,58 @@
 
   function botResponse(userInput) {
     const input = userInput.toLowerCase();
-    if (input.includes("versand")) {
-      return "Der Versand dauert in der Regel 2–4 Werktage.";
-    } else if (input.includes("rückgabe") || input.includes("retoure")) {
-      return "Sie können Ihre Bestellung innerhalb von 14 Tagen kostenlos zurücksenden.";
-    } else if (input.includes("zahlung") || input.includes("bezahlen")) {
-      return "Wir akzeptieren PayPal, Kreditkarte, Klarna und Sofortüberweisung.";
-    } else if (input.includes("kontakt")) {
-      return "Sie erreichen uns per E-Mail unter support@deinshop.de.";
-    } else if (input.includes("rechnung")) {
-      return "Die Rechnung wird Ihnen automatisch per E-Mail zugesendet.";
-    } else {
-      return "Leider habe ich dazu keine Antwort. Bitte kontaktieren Sie unseren Kundenservice.";
+
+    // Versand-Fragen
+    if (
+      input.includes("wie lange") && (input.includes("bestellung") || input.includes("lieferung") || input.includes("versand")) ||
+      input.includes("wann kommt") ||
+      input.includes("lieferzeit") ||
+      input.includes("wann wird geliefert") ||
+      input.includes("paket ankommt") ||
+      input.includes("dauer der lieferung")
+    ) {
+      return "Die Lieferung dauert in der Regel 2–4 Werktage.";
     }
+
+    // Rückgabe
+    if (input.includes("rückgabe") || input.includes("retoure") || input.includes("zurückgeben")) {
+      return "Du kannst deine Bestellung innerhalb von 14 Tagen kostenlos zurücksenden.";
+    }
+
+    // Zahlungsmethoden
+    if (input.includes("zahlung") || input.includes("bezahlen") || input.includes("zahlungsarten")) {
+      return "Wir akzeptieren PayPal, Kreditkarte, Klarna und Sofortüberweisung.";
+    }
+
+    // Kontakt
+    if (input.includes("kontakt") || input.includes("support") || input.includes("hilfe")) {
+      return "Du erreichst uns per E-Mail unter support@beispielshop.de.";
+    }
+
+    // Rechnung
+    if (input.includes("rechnung")) {
+      return "Die Rechnung wird dir nach dem Kauf automatisch per E-Mail zugeschickt.";
+    }
+
+    // Small Talk
+    if (input.includes("hallo") || input.includes("hi")) {
+      return "Hallo! Schön, dass du da bist. Was kann ich für dich tun?";
+    }
+
+    if (input.includes("wie geht") || input.includes("was geht")) {
+      return "Mir geht's gut, danke! Und dir?";
+    }
+
+    if (input.includes("danke") || input.includes("merci")) {
+      return "Gern geschehen! 😊";
+    }
+
+    if (input.includes("tschüss") || input.includes("ciao") || input.includes("auf wiedersehen")) {
+      return "Bis bald! 👋";
+    }
+
+    // Fallback
+    return "Das weiß ich leider nicht genau. Frag gerne nochmal oder kontaktiere unseren Support.";
   }
 
   send.addEventListener('click', () => {
@@ -114,7 +158,7 @@
   });
 
   // Begrüßung
-  appendMessage("Hallo! Ich bin dein Shop-Assistent. Wie kann ich helfen?", 'bot');
+  appendMessage("👋 Willkommen! Ich bin dein Demo-Chatbot. Was möchtest du wissen?", 'bot');
 </script>
 
 </body>
